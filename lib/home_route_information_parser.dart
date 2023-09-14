@@ -1,12 +1,19 @@
 import 'package:flutter/widgets.dart';
 import 'home_route_path.dart';
 
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(methodCount: 0),
+);
+
 class HomeRouteInformationParser extends RouteInformationParser<HomeRoutePath> {
   @override
   Future<HomeRoutePath> parseRouteInformation(
       RouteInformation routeInformation) async {
-    final uri = routeInformation.uri;
 
+    final uri = routeInformation.uri;
+    logger.d("<HomeRouteInformationParser> parse route information uri: $uri");
     if (uri.pathSegments.isEmpty) {
       return HomeRoutePath.home();
     }
@@ -22,10 +29,13 @@ class HomeRouteInformationParser extends RouteInformationParser<HomeRoutePath> {
 
   @override
   RouteInformation? restoreRouteInformation(HomeRoutePath configuration) {
-    if (configuration.isUnkown) return RouteInformation(uri:Uri.parse('/error'));
-    if (configuration.isHomePage) return RouteInformation(uri:Uri.parse('/'));
+    logger.d("<HomeRouteInformationParser> restore route configuration: $configuration");
+    if (configuration.isUnkown) {
+      return RouteInformation(uri: Uri.parse('/error'));
+    }
+    if (configuration.isHomePage) return RouteInformation(uri: Uri.parse('/'));
     if (configuration.isOtherPage) {
-      return RouteInformation(uri:Uri.parse('/${configuration.pathName}'));
+      return RouteInformation(uri: Uri.parse('/${configuration.pathName}'));
     }
 
     return null;

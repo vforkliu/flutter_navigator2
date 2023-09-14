@@ -2,6 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'home_route_path.dart';
+import 'package:logger/logger.dart';
+
+var logger = Logger(
+  printer: PrettyPrinter(methodCount: 0),
+);
 
 class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<HomeRoutePath> {
@@ -13,6 +18,7 @@ class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
 
   @override
   HomeRoutePath get currentConfiguration {
+    logger.d("<HomeRouterDelegate> get current configuration:$isError, ${pathName ?? "null"}");
     if (isError) return HomeRoutePath.unKown();
 
     if (pathName == null) return HomeRoutePath.home();
@@ -30,11 +36,12 @@ class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
 
   @override
   Widget build(BuildContext context) {
+    logger.d("<HomeRouterDelegate> build navigator");
     return Navigator(
         key: navigatorKey,
         pages: [
           MaterialPage(
-            key: ValueKey('HomePage'),
+            key: const ValueKey('HomePage'),
             child: HomePage(
               onTapped: (String path) {
                 pathName = path;
@@ -43,13 +50,9 @@ class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
             ),
           ),
           if (isError)
-            MaterialPage(key: ValueKey('UnknownPage'), child: UnkownPage())
+            const MaterialPage(key: ValueKey('UnknownPage'), child: UnknownPage())
           else if (pathName != null)
-            MaterialPage(
-                key: ValueKey(pathName),
-                child: PageHandle(
-                  pathName: pathName,
-                ))
+            PageHandle(pathName: pathName!)
         ],
         onPopPage: (route, result) {
           if (!route.didPop(result)) return false;
@@ -64,7 +67,9 @@ class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
 
   @override
   Future<void> setNewRoutePath(HomeRoutePath configuration) async {
+
     if (configuration.isUnkown) {
+      logger.d("<HomeRouterDelegate> set new route path: unknown");
       pathName = null;
       isError = true;
       return;
@@ -72,6 +77,7 @@ class HomeRouterDelegate extends RouterDelegate<HomeRoutePath>
 
     if (configuration.isOtherPage) {
       if (configuration.pathName != null) {
+        logger.d("<HomeRouterDelegate> set new route path: other page");
         pathName = configuration.pathName;
         isError = false;
         return;

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class HomeRoutePath {
   final String? pathName;
   final bool isUnkown;
@@ -15,4 +17,16 @@ class HomeRoutePath {
   bool get isHomePage => pathName == null;
 
   bool get isOtherPage => pathName != null;
+
+  Map toJson() => {
+    "pathName": pathName,
+    "isUnknown": isUnkown,
+    "isHomePage": isHomePage,
+    "isOtherPage": isOtherPage
+  };
+
+  @override
+  String toString(){
+    return jsonEncode(toJson());
+  }
 }
